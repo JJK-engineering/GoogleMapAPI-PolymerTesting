@@ -1,0 +1,123 @@
+<!-- my-view3.html  testing google-maps-api for hydropower decision support system use -->
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<!-- added -testing -->
+<!-- <link rel="import" href="../bower_components/iron-jsonp-library/iron-jsonp-library.html">  -->
+<link rel="import" href="shared-styles.html">
+<!-- removed -testng -->
+<!--<base href="https://raw-dot-custom-elements.appspot.com/GoogleWebComponents/google-map/v2.0.1/google-map/">-->
+<!-- <link rel="import" href="google-map.html">  -->                      <!-- commented out -testing -->
+<link rel="import" href="../bower_components/google-apis/google-maps-api.html">
+<!-- <link rel="import" href="../bower_components/google-apis/google-apis.html"> -->
+
+<dom-module id="my-view3">
+    <template>
+    <!-- #map position  has no effecrt -->
+    <style include="shared-styles">
+     :host {
+	 position: relative;
+	 display: block;
+	 height: 100%;
+     }
+     #map {
+	 position: absolute;
+	 left: 50;
+	 height: 300px;
+	 width: 500px;
+     }
+    </style>
+
+    <!-- <div class="card">     <!-- "card" not displayed ??  needed? -->
+    <div>
+	<h1>Another Map</h1>
+	<!-- <div id="map"> -->  <!-- displays two google maps, one small and one as per #map -->
+	<!-- moved id="map" to <google-maps=api> -required to get correctly sized map -->
+	<google-maps-api id="map" on-api-load="loaded" api-key="AIzaSyCy71TCJa_xLJQbCCdZu4dtYMNh8Nav7zw"
+			 version="3.exp">
+	</google-maps-api>
+        <!-- async defer  above works?/necessary? -->
+	<!-- below follows google-map.html as example, displays small google map -->
+	<!-- adding id="map2" displays one one google map as per #map2 -->
+	<!-- <div id="map2">         <!-- not required --> 
+	<!-- </div> -->
+
+<!-- below example of displaying kml file works -->
+<!--      <google-map latitude="41.876" longitude="-87.624" zoom="11"
+		  kml="http://googlemaps.github.io/js-v2-samples/ggeoxml/cta.kml"
+		  api-key="AIzaSyCy71TCJa_xLJQbCCdZu4dtYMNh8Nav7zw">
+      </google-map> -->
+    </div>
+  </template>
+
+  <script>
+   class MyView3 extends Polymer.Element {
+//   class MyView3 extends HTMLElement {                                        // -testing
+       static get is() { return 'my-view3'; }
+
+//       static get properties() {
+//	    return {
+//		map: {
+//		    type: Object,
+//		    notify: true,
+//		    value: null
+//		}
+//	    }
+//       }
+       
+       ready() {
+	   super.ready();
+	   console.log('begin super.ready');
+	   //console.log("mapsAPI", mapsAPI);
+	   //console.log('this.api');
+	   //console.log(this.api);
+	   //var mapsAPI = document.querySelector('google-maps-api');
+	   var mapsAPI = this.shadowRoot.querySelector('google-maps-api');
+	   //var mapsAPI = this.shadowRoot.querySelector('#map');  //no map displayed (because no 'api-load')
+	   mapsAPI.addEventListener('api-load', function(e) {
+	       // this.api === google.maps
+	       console.log('this.api');
+	       console.log(this.api);
+//	       var map = new this.api.Map(mapsAPI, {         //does not display markers and polylines   
+//	       var map = new google.maps.Map(mapsAPI, {	     //does not display markers and polylines      
+	       this.map = new google.maps.Map(mapsAPI, {     //displays markers and polylines
+		   center: {lat: 47.190215, lng: 8.821755},		    
+		   zoom: 13,
+		   mapTypeId: 'satellite',
+		   fullscreenControl: true,   //full screen displays 'center' near upper left ??
+	       });
+	       var testloc = {lat: 47.190215, lng: 8.821755};
+	       var marker = new google.maps.Marker({                
+//	       var marker = new this.api.Marker({
+		   position: testloc,
+		   //map: map
+		   map: this.map
+	       });
+
+	       var flightPlanCoordinates = [
+		   {lat: 37.772, lng: -122.214},
+		   {lat: 21.291, lng: -157.821},
+		   {lat: -18.142, lng: 178.431},
+		   {lat: -27.467, lng: 153.027}
+	       ];
+	       var flightPath = new google.maps.Polyline({
+		   path: flightPlanCoordinates,
+		   geodesic: true,
+		   strokeColor: '#FF0000',
+		   strokeOpacity: 1.0,
+		   strokeWeight: 2,
+		   map: this.map
+	       });
+	       //flightPath.setMap(this.map);
+
+	   });
+	   console.log('ready');
+       }
+
+       loaded() {
+	   console.log('google-maps-api loaded');
+       }
+   }
+
+   window.customElements.define(MyView3.is, MyView3);   
+  </script>
+</dom-module>

@@ -1,0 +1,84 @@
+<!-- my-view1.html  testing google-maps-api  -->
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-jsonp-library/iron-jsonp-library.html">  <!-- added -testing -->
+<link rel="import" href="shared-styles.html">
+<!-- removed -testng -->
+<!--<base href="https://raw-dot-custom-elements.appspot.com/GoogleWebComponents/google-map/v2.0.1/google-map/">-->
+<!-- <link rel="import" href="google-map.html">  -->                      <!-- commented out -testing -->
+<link rel="import" href="../bower_components/google-apis/google-maps-api.html">
+<!-- <link rel="import" href="../bower_components/google-apis/google-apis.html"> -->
+
+<dom-module id="my-view1">
+  <template>
+    <style include="shared-styles">
+     :host {
+	 position: relative;
+	 display: block;
+	 height: 100%;
+     }
+     #map {
+	 position: absolute;
+	 left: 50;	 
+	 height: 300px;
+	 width: 500px;
+     }
+    </style>
+
+    <div class="card">
+	<h1>Another Map</h1>
+	<div id="map">
+	<google-maps-api on-api-load="loaded" api-key="AIzaSyCy71TCJa_xLJQbCCdZu4dtYMNh8Nav7zw" version="3.exp">
+	    test </google-maps-api>
+	</div>
+<!-- below example of displaying kml file works -->
+<!--      <google-map latitude="41.876" longitude="-87.624" zoom="11"
+		  kml="http://googlemaps.github.io/js-v2-samples/ggeoxml/cta.kml"
+		  api-key="AIzaSyCy71TCJa_xLJQbCCdZu4dtYMNh8Nav7zw">
+      </google-map> -->
+    </div>
+  </template>
+
+  <script>
+   class MyView1 extends Polymer.Element {
+//   class MyView1 extends HTMLElement {                                        // -testing
+       
+      static get is() { return 'my-view1'; }
+    
+//    window.customElements.define(MyView1.is, MyView1);
+
+   //var mapsAPI = document.querySelector('google-maps-api');                  // commented out -testing
+
+	ready() {
+	    super.ready();
+//	    var mapsAPI = document.querySelector('google-maps-api');
+	    var mapsAPI = this.shadowRoot.querySelector('google-maps-api');  
+	    console.log("mapsAPI", mapsAPI);
+	    console.log('this.api');
+	    console.log(this.api);	    
+	    mapsAPI.addEventListener('api-load', function(e) {
+		// this.api === google.maps
+		console.log('this.api');
+		console.log(this.api);
+		var map = new this.api.Map(mapsAPI, {
+		    center: {lat: 47.190215, lng: 8.821755},		    
+		    zoom: 13,
+		    mapTypeId: 'satellite',
+		    fullscreenControl: true,
+		});
+	    });
+
+	    console.log('this.api');
+	    console.log(this.api);	    
+	    console.log('ready');
+	}
+
+       loaded() {
+	   console.log('google-maps-api loaded');
+       }
+
+   }
+
+    window.customElements.define(MyView1.is, MyView1);   
+  </script>
+</dom-module>

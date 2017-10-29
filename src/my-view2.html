@@ -1,0 +1,87 @@
+<!-- my-view2.html  testing google-maps-api -->
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="shared-styles.html">
+<link rel="import" href="../bower_components/google-apis/google-maps-api.html">
+
+<dom-module id="my-view2">
+    <template>
+    <style include="shared-styles">
+     :host {
+	 display: block;
+         padding: 10px;
+     }     
+     #map {
+	 position: absolute;
+	 width: 95%;
+	 height:calc(85% - 0px);
+     }
+    </style>
+
+    <div>
+	<google-maps-api id="map" api-key="AIzaSyCy71TCJa_xLJQbCCdZu4dtYMNh8Nav7zw"
+			 version="3.exp">
+	</google-maps-api>
+    </div>
+  </template>
+
+  <script>
+   class MyView2 extends Polymer.Element {
+       static get is() { return 'my-view2'; }
+       
+       ready() {
+	   super.ready();
+	   var mapsAPI = this.shadowRoot.querySelector('google-maps-api');
+	   mapsAPI.addEventListener('api-load', function(e) {
+	       // this.api === google.maps
+	       this.map = new google.maps.Map(mapsAPI, {
+		   //center: {lat: 47.190215, lng: 8.821755},
+		   center: {lat: 40.740, lng: -74.18},		   
+		   zoom: 13,
+		   //mapTypeId: 'satellite',
+	       });
+
+	       var testloc = {lat: 47.190215, lng: 8.821755};
+	       var marker = new google.maps.Marker({                
+		   position: testloc,
+		   map: this.map
+	       });
+
+	       var flightPlanCoordinates = [
+		   {lat: 37.772, lng: -122.214},
+		   {lat: 21.291, lng: -157.821},
+		   {lat: -18.142, lng: 178.431},
+		   {lat: -27.467, lng: 153.027}
+	       ];
+	       var flightPath = new google.maps.Polyline({
+		   path: flightPlanCoordinates,
+		   geodesic: true,
+		   strokeColor: '#FF0000',
+		   strokeOpacity: 1.0,
+		   strokeWeight: 2,
+		   map: this.map
+	       });
+
+	       var imageBounds = {
+		   north: 40.773941,
+		   south: 40.712216,
+		   east: -74.12544,
+		   west: -74.22655
+	       };
+	       var historicalOverlay = new google.maps.GroundOverlay(
+		   'https://www.lib.utexas.edu/maps/historical/newark_nj_1922.jpg',
+		   imageBounds,{
+		       opacity:0.5}
+	       );
+	       historicalOverlay.setMap(this.map);
+
+
+	       
+	       
+	   });	   
+       }
+   }
+
+   window.customElements.define(MyView2.is, MyView2);   
+  </script>
+</dom-module>
