@@ -1,4 +1,4 @@
-<!-- my-view2.html  testing google-maps-api -->
+<!-- my-view2.html  testing google-maps-api with simple example-->
 
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="shared-styles.html">
@@ -33,30 +33,29 @@
 	   super.ready();
 	   var mapsAPI = this.shadowRoot.querySelector('google-maps-api');
 	   mapsAPI.addEventListener('api-load', function(e) {
-	       // this.api === google.maps
-	       var pos = {lat: 47.190215, lng: 8.821755};
+	       var pos = {lat: 40.7361, lng: -74.1618};
 	       var map = new google.maps.Map(mapsAPI, {
-		   //center: {lat: 47.190215, lng: 8.821755},
-		   //center: {lat: 40.740, lng: -74.18},
 		   center: pos,
 		   zoom: 13,
-		   //mapTypeId: 'satellite',
 	       });
-
+	       
 	       var marker = new google.maps.Marker({                
+		   map: map,
 		   position: pos,
-		   map: map
+		   draggable: true,
+		   title: 'Newark',
 	       });
 
-	       var flightPlanCoordinates = [
-		   {lat: 37.772, lng: -122.214},
-		   {lat: 21.291, lng: -157.821},
-		   {lat: -18.142, lng: 178.431},
-		   {lat: -27.467, lng: 153.027}
+	       var planCoordinates = [
+		   {lat: 40.73324, lng: -74.12455},
+		   {lat: 40.72699, lng: -74.13142},
+		   {lat: 40.71724, lng: -74.13674},
+		   {lat: 40.71242, lng: -74.14463}		   
 	       ];
-	       var flightPath = new google.maps.Polyline({
-		   path: flightPlanCoordinates,
+	       var alignment = new google.maps.Polyline({
+		   path: planCoordinates,
 		   geodesic: true,
+		   editable: true,
 		   strokeColor: '#FF0000',
 		   strokeOpacity: 1.0,
 		   strokeWeight: 2,
