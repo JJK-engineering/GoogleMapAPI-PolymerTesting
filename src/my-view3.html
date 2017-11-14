@@ -67,7 +67,7 @@
 		   fullscreenControl: true,
 		   streetViewControl: false,
 	       });
-
+	       
 	       var marker = new google.maps.Marker({                
 		   map: map,
 		   position: this.mapCenter,
@@ -105,12 +105,11 @@
 		       opacity:0.5}
 	       );
 	       altendorfTrails.setMap(map);  //required if map: not set
-	       //altendorfTrails.setMap(null);  //to remove Overlay
+	       //altendorfTrails.setMap(null);  //use to remove Overlay
 
 	       // Try HTML5 geolocation (quickly hacked from google-maps-api example for js,
 	       // but it works)
                var infoWindow = new google.maps.InfoWindow;
-	       
 	       function geoLocate() {
 		   if (navigator.geolocation) {
 		       navigator.geolocation.getCurrentPosition(function(position) {
@@ -136,22 +135,53 @@
 					 'Error: The Geolocation service failed.' :
 					 'Error: Your browser doesn\'t support geolocation.');
 		   infoWindow.open(window.map);
-	       }
+	       }	       
 	       geoLocate()
-	       //this.test();	       //TypeError:"this.test is not a function"
+
+               // add Listner to (re)gelocate
+	       map.addListener('click', function() {
+		   console.log('click');
+		   //console.log(map); //ok
+		   geoLocate(map,infoWindow);
+	       })
+
+               //testing scope from inside EventListener function
+	       console.log('from EventListener');
+	       //this.test1();  //Uncaught TypeError: this.test1 is not a function
+	       test2(); //test2 ->ok
 	   });
 
-	   console.log('ready');
+           //testing scope from inside ready() class method
+	   console.log('from ready');
+	   //console.log(this.map);  //undefined
+	   test2();  //test2 ->ok
+	   this.test1();  //test1 ->ok
+	   function test2() {
+	       console.log('test2');
+	   }
 
-	   this.test();
+	   console.log('ready');
+	   test4();
        }
 
        loaded() {
 	   console.log('google-maps-api loaded');
        }
-       test() {
-	   console.log('test');
+
+       //test method insdie MyView3 class
+       test1() {
+	   console.log('test1');
        }
+       static test3() {
+	   console.log('test3');
+       }
+   }
+
+   //testing scope from window
+   console.log('testing from window');
+   MyView3.test3();  //test3 ->ok
+   function test4() {
+       console.log('test4');
    }
 
    window.customElements.define(MyView3.is, MyView3);   
