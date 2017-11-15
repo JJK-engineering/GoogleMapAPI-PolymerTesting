@@ -1,0 +1,96 @@
+39c39
+< 			 version="3.exp">
+---
+> 			 version="3.exp" altendorftrails="{{altendorftrails}}">
+41c41,42
+< 	<paper-icon-button icon="check-box" id="rm_overlay" on-tap="removeOverlay">
+---
+> 	<paper-icon-button icon="check-box" id="rm_overlay" on-tap="removeOverlay"
+> 			   altendorftrails="{{altendorftrails}}">
+53c54
+< 		map: {
+---
+> 		altendorftrails: {
+58,62d58
+< 		mapCenter: {
+< 		    type: Object,
+< 		    notify: true,
+< 		    value: null,
+< 		}
+71c67,70
+< 	   mapsAPI.addEventListener('api-load', function(e) {
+---
+> 	   //mapsAPI.addEventListener('api-load', function(e) {
+> 
+> 	   mapsAPI.addEventListener('api-load', handleMaps);
+> 	   function handleMaps(e) {
+74c73
+< 	       this.mapCenter = {lat: 47.1899, lng: 8.8219};
+---
+> 	       var mapCenter = {lat: 47.1899, lng: 8.8219};
+76d74
+< //	       map = new google.maps.Map(mapsAPI, {	       
+78c76
+< 		   center: this.mapCenter,
+---
+> 		   center: mapCenter,
+88c86
+< 		   position: this.mapCenter,
+---
+> 		   position: mapCenter,
+116,117c114,116
+< 	       var altendorfTrails = new google.maps.GroundOverlay(
+< 		   //'../data/AltendorfTrails.png',
+---
+> //	       //var altendorfTrails = new google.maps.GroundOverlay(
+> 	       this.altendorftrails = new google.maps.GroundOverlay(
+> 	       //'../data/AltendorfTrails.png',
+122c121,122
+< 	       altendorfTrails.setMap(map);  //required if map: not set
+---
+> 	       console.log('altendorftrails',this.altendorftrails);
+> 	       this.altendorftrails.setMap(map);  //required if map: not set
+161c161
+< 		   geoLocate(map,infoWindow);
+---
+> 		   geoLocate();		   
+164,167c164,173
+< 	       function removeOverlay() {
+< 		   console.log('removing Overlay');
+< 		   altendorfTrails.setMap(null);
+< 		   }
+---
+> //	       // remove Overlay
+> //	       altendorfTrails.addListener('click', function() {
+> //		   console.log('Overlay click');
+> //		   //altendorfTrails.setMap(null);
+> //		   removeOverlay();
+> //	       })
+> //	       function removeOverlay() {
+> //		   console.log('removing Overlay');
+> //		   altendorfTrails.setMap(null);
+> //	       }
+168a175,176
+> //	       return this.altendorftrails  //???  -does not seem to have any efect
+> 	       
+173c181
+< 	   });
+---
+> 	   };
+185a194,195
+> 
+> 	   console.log('altendorftrails',this.altendorftrails);  //null
+188,190c198,202
+< //       removeOverlay() {
+< //	   console.log('removing Overlay');
+< //       }
+---
+>        removeOverlay() {
+> 	   console.log('removing Overlay');
+> 	   console.log('altendorftrails',this.altendorftrails);
+> 	   this.altendorftrails.setMap(null);
+>        }
+210c222
+<    }
+---
+>    };

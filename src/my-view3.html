@@ -3,6 +3,8 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="../bower_components/google-apis/google-maps-api.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 
 <dom-module id="my-view3">
     <template>
@@ -21,6 +23,11 @@
 	 width: 95%;
 	 height:calc(85% - 0px);
      }
+     #rm_overlay {
+	 position: absolute;
+	 left: 30%;
+         color: white;
+     }
     </style>
 
     <!-- <div class="card">     <!-- "card" not displayed ??  needed? -->
@@ -29,8 +36,11 @@
 	<!-- <div id="map"> -->  <!-- displays two google maps, one small and one as per #map -->
 	<!-- moved id="map" to <google-maps=api> -required to get correctly sized map -->
 	<google-maps-api id="map" on-api-load="loaded" api-key="AIzaSyCy71TCJa_xLJQbCCdZu4dtYMNh8Nav7zw"
-			 version="3.exp">
+			 version="3.exp" altendorftrails="{{altendorftrails}}">
 	</google-maps-api>
+	<paper-icon-button icon="check-box" id="rm_overlay" on-tap="removeOverlay"
+			   altendorftrails="{{altendorftrails}}">
+	</paper-icon-button>rmOvly
     </div>
   </template>
 
@@ -41,11 +51,11 @@
 
        static get properties() {
 	    return {
-		mapCenter: {
+		altendorftrails: {
 		    type: Object,
 		    notify: true,
 		    value: null,
-		}
+		},
 	    }
        }
 
@@ -54,13 +64,16 @@
 	   console.log('begin super.ready');
 	   //var mapsAPI = document.querySelector('google-maps-api');
 	   var mapsAPI = this.shadowRoot.querySelector('google-maps-api');
-	   mapsAPI.addEventListener('api-load', function(e) {
+	   //mapsAPI.addEventListener('api-load', function(e) {
+	   ///mapsAPI.addEventListener('api-load', this.loaded2);
+	   //mapsAPI.addEventListener('api-load', handleMaps);
+	   function handleMaps2(e) {
 	       console.log('this.api');
 	       console.log(this.api);
-	       this.mapCenter = {lat: 47.1899, lng: 8.8219};
+	       var mapCenter = {lat: 47.1899, lng: 8.8219};
 	       var map = new google.maps.Map(mapsAPI, {
 		   //center: {lat: 47.190215, lng: 8.821755},
-		   center: this.mapCenter,
+		   center: mapCenter,
 		   zoom: 13,
 		   tilt: 45,  //seems to be default
 		   mapTypeId: 'satellite',
@@ -70,7 +83,7 @@
 	       
 	       var marker = new google.maps.Marker({                
 		   map: map,
-		   position: this.mapCenter,
+		   position: mapCenter,
 		   title: 'Maienberg',
 		   draggable: true,
 	       });
@@ -98,13 +111,15 @@
 		   east: 8.8544,
 		   west: 8.7813
 	       };
-	       var altendorfTrails = new google.maps.GroundOverlay(
-		   //'../data/AltendorfTrails.png',
+//	       //var altendorfTrails = new google.maps.GroundOverlay(
+	       this.altendorftrails = new google.maps.GroundOverlay(
+	       //'../data/AltendorfTrails.png',
 		   '../src/AltendorfTrails.png',  //temporarily for firebase deply
 		   imageBounds,{
 		       opacity:0.5}
 	       );
-	       altendorfTrails.setMap(map);  //required if map: not set
+	       console.log('altendorftrails',this.altendorftrails);
+	       this.altendorftrails.setMap(map);  //required if map: not set
 	       //altendorfTrails.setMap(null);  //use to remove Overlay
 
 	       // Try HTML5 geolocation (quickly hacked from google-maps-api example for js,
@@ -141,16 +156,31 @@
                // add Listner to (re)gelocate
 	       map.addListener('click', function() {
 		   console.log('click');
-		   //console.log(map); //ok
-		   geoLocate(map,infoWindow);
+		   //console.log('map',map); //ok
+		   //console.log(typeof map);  //object		   
+		   geoLocate();		   
 	       })
 
+//	       // remove Overlay
+//	       altendorfTrails.addListener('click', function() {
+//		   console.log('Overlay click');
+//		   //altendorfTrails.setMap(null);
+//		   removeOverlay();
+//	       })
+//	       function removeOverlay() {
+//		   console.log('removing Overlay');
+//		   altendorfTrails.setMap(null);
+//	       }
+
+//	       return this.altendorftrails  //???  -does not seem to have any efect
+	       
                //testing scope from inside EventListener function
 	       console.log('from EventListener');
 	       //this.test1();  //Uncaught TypeError: this.test1 is not a function
 	       test2(); //test2 ->ok
-	   });
+	   };
 
+	   
            //testing scope from inside ready() class method
 	   console.log('from ready');
 	   //console.log(this.map);  //undefined
@@ -162,11 +192,143 @@
 	   test4();
 
 	   console.log('ready');
+
+	   console.log('altendorftrails',this.altendorftrails);  //null
        }
 
+//       removeOverlay() {
+//	   console.log('removing Overlay');
+//	   console.log('altendorftrails',this.altendorftrails);
+//	   this.altendorftrails.setMap(null);
+//       }
+
        loaded() {
-	   console.log('google-maps-api loaded');
-       }
+	   var mapsAPI = this.shadowRoot.querySelector('google-maps-api');
+	   var mapCenter = {lat: 47.1899, lng: 8.8219};
+	   var map = new google.maps.Map(mapsAPI, {
+	       //center: {lat: 47.190215, lng: 8.821755},
+	       center: mapCenter,
+	       zoom: 13,
+	       tilt: 45,  //seems to be default
+	       mapTypeId: 'satellite',
+	       fullscreenControl: true,
+	       streetViewControl: false,
+	   });
+	   
+	   var marker = new google.maps.Marker({                
+	       map: map,
+	       position: mapCenter,
+	       title: 'Maienberg',
+	       draggable: true,
+	   });
+	   
+	   var planCoordinates = [
+	       {lat: 47.19056, lng: 8.82532},
+	       {lat: 47.18997, lng: 8.82302},
+	       {lat: 47.18994, lng: 8.82180},
+	       {lat: 47.18896, lng: 8.81960}
+	   ];
+	   var alignment = new google.maps.Polyline({
+	       path: planCoordinates,
+	       geodesic: true,
+	       editable: true,		   
+	       strokeColor: '#FF0000',
+	       strokeOpacity: 1.0,
+	       strokeWeight: 2,
+	       map: map,
+	   });
+	   //alignment.setMap(map);   //useful to redisplay changed alignment?
+	   
+	   var imageBounds = {
+	       north: 47.19658,
+	       south: 47.15026,
+	       east: 8.8544,
+	       west: 8.7813
+	   };
+	   //	       //var altendorfTrails = new google.maps.GroundOverlay(
+	   this.altendorftrails = new google.maps.GroundOverlay(
+	       //'../data/AltendorfTrails.png',
+	       '../src/AltendorfTrails.png',  //temporarily for firebase deply
+	       imageBounds,{
+		   opacity:0.5}
+	   );
+	   console.log('altendorftrails',this.altendorftrails);
+	   this.altendorftrails.setMap(map);  //required if map: not set
+	   //altendorfTrails.setMap(null);  //use to remove Overlay
+	   
+	   // Try HTML5 geolocation (quickly hacked from google-maps-api example for js,
+	   // but it works)
+           var infoWindow = new google.maps.InfoWindow;
+	   function geoLocate() {
+	       if (navigator.geolocation) {
+		   navigator.geolocation.getCurrentPosition(function(position) {
+		       pos = {
+			   lat: position.coords.latitude,
+			   lng: position.coords.longitude
+		       };
+		       console.log('position',pos);
+		       infoWindow.setPosition(pos);
+		       infoWindow.setContent('Location found.');
+		       console.log('Location found.');
+		       infoWindow.open(map);
+		       map.setCenter(pos);
+		   }, handleLocationError(true, infoWindow, map.getCenter()) );
+	       } else {
+		   // Browser doesn't support Geolocation
+		   handleLocationError(false, infoWindow, map.getCenter());
+	       };
+	   }
+	   function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+	       infoWindow.setPosition(pos);
+	       infoWindow.setContent(browserHasGeolocation ?
+				     'Error: The Geolocation service failed.' :
+				     'Error: Your browser doesn\'t support geolocation.');
+	       infoWindow.open(window.map);
+	   }	       
+	   geoLocate()
+	   
+           // add Listner to (re)gelocate
+	   map.addListener('click', function() {
+	       console.log('click');
+	       //console.log('map',map); //ok
+	       //console.log(typeof map);  //object		   
+	       geoLocate();		   
+	   })
+       };
+       
+
+       removeOverlay(e) {  //quick testing, woks with on-api-load instead of mapsAPI EventListener
+	   console.log('altendorftrails',this.altendorftrails);
+	   //this.altendorftrails.setMap(map);  //required if map: not set
+	   this.altendorftrails.setMap(null);  //use to remove Overlay
+       };
+
+       removeOverlay2(e) {  //works (with mapsAPI EventListener) but is a brute force technique
+	   var mapsAPI = this.shadowRoot.querySelector('google-maps-api');	   
+	   console.log('this.api');
+	   console.log(this.api);
+	   var mapCenter = {lat: 47.1899, lng: 8.8219};
+	   var map = new google.maps.Map(mapsAPI, {
+	       //center: {lat: 47.190215, lng: 8.821755},
+	       center: mapCenter,
+	       zoom: 13,
+	       tilt: 45,  //seems to be default
+	       mapTypeId: 'satellite',
+	       fullscreenControl: true,
+	       streetViewControl: false,
+	   });
+	   
+	   var marker = new google.maps.Marker({                
+	       map: map,
+	       position: mapCenter,
+	       title: 'Maienberg',
+	       draggable: true,
+	   });
+       };
+
+//       loaded() {
+//	   console.log('google-maps-api loaded');
+//       }
 
        //test method insdie MyView3 class
        test1() {
@@ -182,7 +344,7 @@
    MyView3.test3();  //test3 ->ok
    function test4() {
        console.log('test4');
-   }
+   };
 
    window.customElements.define(MyView3.is, MyView3);   
   </script>
