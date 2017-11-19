@@ -18,7 +18,9 @@
     "leaflet-map": "^1.2.0",
     "google-map": "^2.0.2",
     "google-apis": "^2.0.0",
-    "iron-icons": "^2.0.1"
+    "iron-icons": "^2.0.1",
+    "paper-input": "^2.0.3",
+    "iron-input": "^2.0.1"
   },
   "resolutions": {
     "polymer": "^2.0.0"

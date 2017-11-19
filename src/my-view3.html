@@ -5,6 +5,7 @@
 <link rel="import" href="../bower_components/google-apis/google-maps-api.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
 
 <dom-module id="my-view3">
     <template>
@@ -21,25 +22,64 @@
      #map {
 	 position: absolute;
 	 width: 95%;
-	 height:calc(85% - 0px);
+	 height:calc(75% - 0px);
      }
      #rm_overlay {
 	 position: absolute;
 	 left: 30%;
          color: white;
      }
-     #test2 {
-	 position: absolute;
-	 top: 12%;
-	 left: 50%;
+     #lat_i {
+	 position: relative;
+	 float: right;
+	 margin-right: 40px;
+	 margin-top: 40px;	 
+         color: red;
+     }
+     #lat_t {
+	 position: relative;
+	 float: right;
+	 margin-right: 10px;
+	 margin-top: 40px;	 
+         color: red;
+     }
+     #lng_i {
+	 position: relative;
+	 float: right;
+	 margin-right: 40px;
+	 margin-top: 80px;	 
+         color: red;
+     }
+     #lng_t {
+	 position: relative;
+	 float: right;
+	 margin-right: 10px;
+	 margin-top: 80px;	 
          color: red;
      }
      #test {
-	 position: relative;	 
+	 position: relative;
+         color: red;
+     }
+     #test9 {
+	 position: relative;
+	 left: 40%;
          color: red;
      }
     </style>
 
+    <!-- testing -->
+    <div>{{zoom}} {{recordZoom}}</div>
+    <!--<paper-input type="number" zoom="{{zoom}}" input id="test" value="{{zoom::input}}"></paper-input>-->
+    <paper-input type="number" bind-value="{{zoom}}"
+		 zoom="{{zoom}}" input id="test" value="{{zoom::input}}" notify></paper-input>
+    <!--<iron-input bind-value="{{zoom}}"> <input id="test" type="number" value="{{zoom::input}}"></iron-input>-->
+    <!-- -> InvalidValueError: setZoom: not a number -->
+    <!--<div>{{testVariable}}</div>
+    <paper-input id="testvar" type="number" label="testing" max=30 style="width:50mm"
+		 value="{{testVariable}}">
+    </paper-input> -->
+    
     <!-- <div class="card">     <!-- "card" not displayed ??  needed? -->
     <div>
 	<h1>Polymer google-maps-api extended example</h1>
@@ -47,22 +87,27 @@
 	<!-- moved id="map" to <google-maps=api> -required to get correctly sized map -->
 	<google-maps-api id="map" on-api-load="mapLoaded" api-key="AIzaSyCy71TCJa_xLJQbCCdZu4dtYMNh8Nav7zw"
 			 version="3.exp" altendorf-trails="{{altendorfTrails}}"
-			 plan-coordinates="{{planCoordinates}}">
+			 plan-coordinates="{{planCoordinates}}"
+			 zoom="{{zoom}}">
 	</google-maps-api>
 	<paper-icon-button icon="check-box" id="rm_overlay" on-tap="removeOverlay"
 			   altendorf-trails="{{altendorfTrails}}">
 	</paper-icon-button>rmOvly
     </div>
 
-    <!-- <div id="test2">[[arrayItem(planCoordinates.*,0,'lat')]]</div>  <!-- works (kind of) -->
-    <!-- <template is="dom-repeat" items="{{arrayItem(planCoordinates.*,0,'lat')}}"
+    <div><template is="dom-repeat" items="{{planCoordinates}}"
 	      plan-coordinates="{{planCoordinates}}">
-	lat: <input id="test3" type="number" style="width:15mm" value="{{item::input}}"> 
-	 </template> -->
-    <template is="dom-repeat" items="{{planCoordinates}}"
-	      plan-coordinates="{{planCoordinates}}">
-	lat: <input id="test" type="number" style="width:20mm" value="{{item.lat::input}}"> 
-    </template>
+	<!-- <input id="lat_i" type="number" style="width:18mm" value="{{item.lat::input}}">
+	<p id="lat_t">lat:</p> -->
+<!--        <paper-input id="test" type="number" label="lat" max=10 style="width:18mm"
+	    value="{{item.lat}}" on-value-changed="onInput">
+	</paper-input> -->
+    </template></div><br>
+<!--    <div><template is="dom-repeat" items="{{planCoordinates}}"
+     plan-coordinates="{{planCoordinates}}">
+	<input id="lng_i" type="number" style="width:18mm" value="{{item.lng::input}}">
+	<p id="lng_t">lng:</p>     
+    </template></div> -->
     </template>
 
   <script>
@@ -80,8 +125,23 @@
 		planCoordinates: {
 		    type: Array,
 		    notify: true,
-		    value: [
-			{lat: 0.0, lng: 0.0}],
+		    value: [{lat: 0.0, lng: 0.0}],
+		},
+		testVariable: {
+		    type: Number,
+		    notify: true,
+		    value: 987654321,
+		},
+		zoom: {
+		    type: Number,
+		    value: 13,
+		    notify: true,
+		    observer: '_zoomObserver'  //testing
+		},
+		recordZoom: {
+		    type: Number,
+		    computed: 'computeZoom()',  //does not update div test above ???
+		    notify: true,
 		},
 	    }
        }
@@ -92,12 +152,14 @@
            //testing scope from inside ready() class method
 	   console.log('from ready');
 	   //console.log(this.map);  //undefined
+
 	   test2();  //test2 ->ok
 	   this.test1();  //test1 ->ok
 	   function test2() {
 	       console.log('test2');
 	   }
 	   test4();
+	   console.log(this.planCoordinates[0].lat);
 	   console.log('ready');
        }
 
@@ -108,12 +170,14 @@
 	   var map = new google.maps.Map(mapsAPI, {
 	       //center: {lat: 47.190215, lng: 8.821755},
 	       center: mapCenter,
-	       zoom: 13,
+	       zoom: this.zoom,
 	       tilt: 45,  //seems to be default
 	       mapTypeId: 'satellite',
 	       fullscreenControl: true,
 	       streetViewControl: false,
 	   });
+
+	   map.addListener('zoom_changed', this._zoomChanged);  //testing
 	   
 	   var marker = new google.maps.Marker({                
 	       map: map,
@@ -129,6 +193,7 @@
 	       {lat: 47.18896, lng: 8.81960}
 	   ];
 	   console.log('planCoordinates',this.planCoordinates);
+	   console.log(this.planCoordinates[0].lat);
 	   console.log('planCoordinates[0].lat',this.planCoordinates[0].lat);
 	   var alignment = new google.maps.Polyline({
 	       path: this.planCoordinates,
@@ -204,24 +269,41 @@
 	   this.altendorfTrails.setMap(null);  //use to remove Overlay
        };
 
-       // change is change record for the array change,
-       // change.base is the array specified in the binding
-//       arrayItem(change, index, path) {                  //called for data binding to array
-//	   console.log('arrayItem',change,index,path);
-//	   console.log('planCoordinates',this.planCoordinates);
-//	   console.log(this.get(path, change.base[index]));
-//           //return a value for path relative to root object
-//           return this.get(path, change.base[index]);
-//       }
-       arrayItem(change, index, path) {                  //called for data binding to array
-	   console.log('arrayItem',change,index,path);
-	   console.log('planCoordinates',this.planCoordinates);
-	   console.log(this.get(path, change.base[index]));
-           //return a value for path relative to root object
-           return this.get(path, change.base[index]);
+       //testing
+       _zoomObserver() {
+	   console.log('this.zoom: ',this.zoom);  //correctly records zoom input from map and from paper-input
+	   //this.zoom=Number(10); //initial zoom is set to '10', later zooms set to '10'	   
+	   this.zoom=Number(this.zoom);  //works (also works with parseInt operator)
+	   ///if (this.zoom == 13) {}
+	   ///else {
+	   ///    this.zoom=10 }; //zoom var is set to 10 and '10' is displayed in paper-inout and in div
+	   ///                      //map is not zoomed to '10' (maps requires a method, see below)
+	   //map.setZoom(this.zoom);  //ReferenceError: map is not defined (need to add map as property)
+	   this.mapLoaded();  //map zooms with paper-input with Number operator applied to zoom input
+	                      //causes "Uncaught ReferenceError: google is not defined" when called initially
+	   // Notes:
+	   // data bindings from map do not propagate (zoom paper-input not updated when map zoomed using +/-)
+	   //   - zooming map does not trigger zoom observer _zoomObserver (e.g. no console logging) ???
+	   //   -> some sort of get seems to be required in Listener                                  // ToDo jjk
+	   // if map.addListener('zoom_changed', this._zoomObserver); used
+	   //   - _zoomObserver is called and console logging reports new zoom level
+	   //   - zoom paper-input is however not updated [see explnation below]
+	     }
+       _zoomChanged() {
+	   console.log('this.zoom: ',this.zoom);
+	   recordZoom=this.zoom;  //updates
+	   //this.zoom=Number(this.zoom);	   
+	   //this.zoom=Number(13);  //has no effect on map zoom after zoom input used (does not set to '13')
+	                          // because no method is called
+	                          // the next time it is called, it starts from previous zoom level (not 13)
+	                          // this shows that zoom not NOT propagate into map until method is called
+	   //console.log('this.zoom =13: ',this.zoom);  //13
+	   }
+       computeZoom() {
+	   return recordZoom
        }
-
-       //test method insdie MyView3 class
+       
+       //test using method inside MyView3 class
        test1() {
 	   console.log('test1');
        }
@@ -232,6 +314,7 @@
 
    //testing scope from window
    console.log('testing from window');
+   var recordZoom=1;
    MyView3.test3();  //test3 ->ok
    function test4() {
        console.log('test4');
