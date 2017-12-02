@@ -14,7 +14,7 @@
 	 display: block;
          padding: 10px;
      }
-     #map2 {                    <!-- testing -->
+     #map0 {                    <!-- testing -->
 	 position: absolute;
 	 height: 300px;
 	 width: 500px;
@@ -29,57 +29,77 @@
 	 left: 30%;
          color: white;
      }
-     #lat_i {
+     #lat_i {                    <!-- testing -->
 	 position: relative;
 	 float: right;
 	 margin-right: 40px;
-	 margin-top: 40px;	 
+	 margin-top: 0px;	 
          color: red;
      }
-     #lat_t {
+     #lat_t {                    <!-- testing -->
 	 position: relative;
 	 float: right;
 	 margin-right: 10px;
-	 margin-top: 40px;	 
+	 margin-top: 0px;	 
          color: red;
      }
-     #lng_i {
+     #lng_i {                    <!-- testing -->
 	 position: relative;
 	 float: right;
 	 margin-right: 40px;
-	 margin-top: 80px;	 
+	 margin-top: 10px;	 
          color: red;
      }
-     #lng_t {
+     #lng_t {                    <!-- testing -->
 	 position: relative;
 	 float: right;
 	 margin-right: 10px;
-	 margin-top: 80px;	 
+	 margin-top: 10px;	 
          color: red;
      }
-     #test {
+     #test {                    <!-- testing -->
 	 position: relative;
-         color: red;
-     }
-     #test9 {
-	 position: relative;
-	 left: 40%;
          color: red;
      }
     </style>
 
+    <!-- testing: works when _zoomChanged called, by calling mapLoaded() -->    
+    <div><template is="dom-repeat" items="{{planCoordinates}}"
+		   plan-coordinates="{{planCoordinates}}">
+	<input id="lat_i" type="number" style="width:18mm" value="{{item.lat::input}}">
+	<p id="lat_t">lat:</p>
+        <!-- <paper-input id="test" type="number" label="lat" max=10 style="width:18mm"
+		     value="{{item.lat}}" on-value-changed="onInput">
+	</paper-input> -->
+    </template></div><br>
+    <div><template is="dom-repeat" items="{{planCoordinates}}"
+		   plan-coordinates="{{planCoordinates}}">
+	<input id="lng_i" type="number" style="width:18mm" value="{{item.lng::input}}">
+	<p id="lng_t">lng:</p>     
+    </template></div>
+
     <!-- testing -->
-    <div>{{zoom}} {{recordZoom}}</div>
-    <!--<paper-input type="number" zoom="{{zoom}}" input id="test" value="{{zoom::input}}"></paper-input>-->
-    <paper-input type="number" bind-value="{{zoom}}"
+    testVariable = <span>{{testVariable}}</span>
+    <!-- <div>{{testVariable}}</div> -->
+    <button on-click="plusOne">test Variable +1</button>
+    <paper-input id="testvar" type="number" label="testVariable" max=30 style="width:50mm"
+		 bind-value="{{testVariable}}"
+		 value="{{testVariable::input}}" test-variable="{{testVariable}}" notify>
+    </paper-input>
+    <!-- testing: works (without setting property) -->
+    <!-- testing: if 'computed:' set in property, computeTestVariable called initialyy,
+	 but not called by _zoomChange or _zommObserver, div/span do not update -->
+
+    <!-- testing -->    
+    zoom = <span>{{zoom}}</span>
+    <paper-input type="number" bind-value="{{zoom}}" label="zoom"
 		 zoom="{{zoom}}" input id="test" value="{{zoom::input}}" notify></paper-input>
     <!--<iron-input bind-value="{{zoom}}"> <input id="test" type="number" value="{{zoom::input}}"></iron-input>-->
-    <!-- -> InvalidValueError: setZoom: not a number -->
-    <!--<div>{{testVariable}}</div>
-    <paper-input id="testvar" type="number" label="testing" max=30 style="width:50mm"
-		 value="{{testVariable}}">
-    </paper-input> -->
-    
+    <!--  InvalidValueError: setZoom: not a number -->
+    <paper-input type="number" bind-value="{{recordedZoom}}" recorded-zoom="{{recordedZoom}}" 
+	 input id="test" value="{{recordedZoom::input}}" label="recordedZoom" notify></paper-input>
+    recorded zoom = <span>{{recordedZoom}}</span>
+
     <!-- <div class="card">     <!-- "card" not displayed ??  needed? -->
     <div>
 	<h1>Polymer google-maps-api extended example</h1>
@@ -88,31 +108,17 @@
 	<google-maps-api id="map" on-api-load="mapLoaded" api-key="AIzaSyCy71TCJa_xLJQbCCdZu4dtYMNh8Nav7zw"
 			 version="3.exp" altendorf-trails="{{altendorfTrails}}"
 			 plan-coordinates="{{planCoordinates}}"
-			 zoom="{{zoom}}">
+			 recorded-zoom="{{recordedZoom}}" test-variable="{{testVariable}}"
+			 zoom="{{zoom}}">			 
 	</google-maps-api>
 	<paper-icon-button icon="check-box" id="rm_overlay" on-tap="removeOverlay"
 			   altendorf-trails="{{altendorfTrails}}">
 	</paper-icon-button>rmOvly
     </div>
-
-    <div><template is="dom-repeat" items="{{planCoordinates}}"
-	      plan-coordinates="{{planCoordinates}}">
-	<!-- <input id="lat_i" type="number" style="width:18mm" value="{{item.lat::input}}">
-	<p id="lat_t">lat:</p> -->
-<!--        <paper-input id="test" type="number" label="lat" max=10 style="width:18mm"
-	    value="{{item.lat}}" on-value-changed="onInput">
-	</paper-input> -->
-    </template></div><br>
-<!--    <div><template is="dom-repeat" items="{{planCoordinates}}"
-     plan-coordinates="{{planCoordinates}}">
-	<input id="lng_i" type="number" style="width:18mm" value="{{item.lng::input}}">
-	<p id="lng_t">lng:</p>     
-    </template></div> -->
     </template>
 
   <script>
    class MyView3 extends Polymer.Element {
-//   class MyView3 extends HTMLElement {
        static get is() { return 'my-view3'; }
 
        static get properties() {
@@ -125,12 +131,26 @@
 		planCoordinates: {
 		    type: Array,
 		    notify: true,
-		    value: [{lat: 0.0, lng: 0.0}],
+		    value: [
+			{lat: 47.19056, lng: 8.82532},
+			{lat: 47.18997, lng: 8.82302},
+			{lat: 47.18994, lng: 8.82180},
+			{lat: 47.18896, lng: 8.81960}
+		    ]
 		},
 		testVariable: {
 		    type: Number,
-		    notify: true,
-		    value: 987654321,
+		    value: 987654321,  //initial value
+		    //value: window.testVariable,  //testing: initial value from global
+		    //computed: 'computeTestVariable()',  //input updates this.tesVariable
+		                                          // and global testVariable (only initially?)
+		                                          // with notify: true or false
+		    notify: true, //input value with data binding updates this.testVariable
+		                  //global test Variable does not update (unless done imperatively in onTap)
+		    //readOnly: false,  //does not seem relevant for this example
+		    observer: 'observeTest'  //not called if computed: is defined
+		                             //input updates this.tesVariable
+		                             //does not update global testVariable (unless done in onTap)
 		},
 		zoom: {
 		    type: Number,
@@ -138,17 +158,20 @@
 		    notify: true,
 		    observer: '_zoomObserver'  //testing
 		},
-		recordZoom: {
+		recordedZoom: {
 		    type: Number,
-		    computed: 'computeZoom()',  //does not update div test above ???
+		    value: recordZoom, //testing
+		    //computed: 'computeZoom()',  //works initially but later does not update div test above ???
 		    notify: true,
+		    observer: 'computeZoom'  //testing		    
 		},
 	    }
        }
 
-       ready() {
-	   super.ready();
-	   console.log('begin super.ready');
+       //ready() {                                           //console.log's do not write to console ??
+       constructor() {
+	   //super.ready();                                  //used together with ready()
+	   super();
            //testing scope from inside ready() class method
 	   console.log('from ready');
 	   //console.log(this.map);  //undefined
@@ -159,12 +182,17 @@
 	       console.log('test2');
 	   }
 	   test4();
-	   console.log(this.planCoordinates[0].lat);
+	   console.log('this.planCoordinates[0]',this.planCoordinates[0].lat);
+	   console.log(this.zoom);
+	   console.log('constructor: this ',this);
+	   console.log('constructor: MyView3.testVariable ',MyView3.testVariable);	   
+	   console.log('constructor: testVariable ',testVariable);	   
+	   console.log('constructor: this.testVariable ',this.testVariable);
 	   console.log('ready');
        }
 
        mapLoaded() {
-	   console.log('google-maps-api loaded');	   
+	   console.log('google-maps-api loading');	   
 	   var mapsAPI = this.shadowRoot.querySelector('google-maps-api');
 	   var mapCenter = {lat: 47.1899, lng: 8.8219};
 	   var map = new google.maps.Map(mapsAPI, {
@@ -177,7 +205,15 @@
 	       streetViewControl: false,
 	   });
 
+	   console.log('mapLoaded: this ',this);
+	   console.log('mapLoaded: MyView3.testVariable ',MyView3.testVariable);	   	   
+	   console.log('mapLoaded: testVariable ',testVariable);
+	   console.log('mapLoaded: this.testVariable ',this.testVariable);
+	   map.test2Variable=64;
+	   console.log('map.test2Variable ', map.test2Variable);
+	   
 	   map.addListener('zoom_changed', this._zoomChanged);  //testing
+	   //map.addListener('zoom_changed', this._zoomChanged.bind(this)); 	       
 	   
 	   var marker = new google.maps.Marker({                
 	       map: map,
@@ -186,14 +222,9 @@
 	       draggable: true,
 	   });
 	   
-	   this.planCoordinates = [
-	       {lat: 47.19056, lng: 8.82532},
-	       {lat: 47.18997, lng: 8.82302},
-	       {lat: 47.18994, lng: 8.82180},
-	       {lat: 47.18896, lng: 8.81960}
-	   ];
 	   console.log('planCoordinates',this.planCoordinates);
-	   console.log(this.planCoordinates[0].lat);
+	   this.planCoordinates[0].lat=Number(this.planCoordinates[0].lat);
+	   console.log('this.planCoordinates[0].lat) ',this.planCoordinates[0].lat);
 	   console.log('planCoordinates[0].lat',this.planCoordinates[0].lat);
 	   var alignment = new google.maps.Polyline({
 	       path: this.planCoordinates,
@@ -269,9 +300,9 @@
 	   this.altendorfTrails.setMap(null);  //use to remove Overlay
        };
 
-       //testing
-       _zoomObserver() {
-	   console.log('this.zoom: ',this.zoom);  //correctly records zoom input from map and from paper-input
+       _zoomObserver() {  //testing                     //observer for property 'zoom'
+	   console.log('zoomObserver: this.zoom: ',this.zoom);
+	     //correctly records zoom input from map and from paper-input
 	   //this.zoom=Number(10); //initial zoom is set to '10', later zooms set to '10'	   
 	   this.zoom=Number(this.zoom);  //works (also works with parseInt operator)
 	   ///if (this.zoom == 13) {}
@@ -288,19 +319,70 @@
 	   // if map.addListener('zoom_changed', this._zoomObserver); used
 	   //   - _zoomObserver is called and console logging reports new zoom level
 	   //   - zoom paper-input is however not updated [see explnation below]
-	     }
-       _zoomChanged() {
-	   console.log('this.zoom: ',this.zoom);
-	   recordZoom=this.zoom;  //updates
+	   console.log('_zoomObserver: this ',this);
+	   console.log(typeof(this.testVariable));
+	   this.testVariable += 1;  //works
+	   console.log('_zommObserver: this.testVariable',this.testVariable);
+   	   console.log('_zoomObserver: testVariable',testVariable);
+	   //testVariable=this.testVariable;
+       }
+       _zoomChanged() {  //testing                      //maps Listener
+	   console.log('zoomChanged: this.zoom: ',this.zoom);
+	   //recordZoom=this.zoom;  //updates as verified by 'console.log(recordZoom);' after zooming on map
+	   console.log('this.recordedZoom',this.recordedZoom);  //undefined after 1st zoom??, later correct
+	   this.recordedZoom=this.zoom;
+	   console.log('this.recordedZoom',this.recordedZoom);  //displayed correctly after zooming on map
+	                                                        //but still does not update <div>
+	   //console.log('recordedZoom',recordedZoom);  //Uncaught ReferenceError: recordedZoom is not defined
 	   //this.zoom=Number(this.zoom);	   
-	   //this.zoom=Number(13);  //has no effect on map zoom after zoom input used (does not set to '13')
-	                          // because no method is called
+	   //this.zoom=Number(13);  // has no effect on map zoom after zoom input used (does not set to '13')
+	                          // does have an effect with .bind(this)
+	                          // because no method is called??
 	                          // the next time it is called, it starts from previous zoom level (not 13)
 	                          // this shows that zoom not NOT propagate into map until method is called
 	   //console.log('this.zoom =13: ',this.zoom);  //13
+	   this.testVariable += 1;
+	   console.log('_zoomChanged: this ',this);	   	   
+	   console.log('_zoomChanged: testVariable ',testVariable);
+	   console.log('_zoomChanged: this.testVariable ',this.testVariable);	//undefined
+	                                                                        //defined with .bind(this)
+	   //this.testVariable += 1;  //doesn't work from a Listener (likely a scoping issue)
+	   //console.log('this.testVariable',this.testVariable);
+	   //	   testVariable=this.testVariable;
+	   //console.log(this.map); //undefined
 	   }
-       computeZoom() {
-	   return recordZoom
+       computeZoom() {  //testing
+	   console.log('computeZoom ',recordZoom);
+	   return recordZoom;
+       }
+
+       observeTest() {  //testing
+	   console.log('observeTest');
+	   console.log('constructor: this ',this);
+	   console.log('constructor: MyView3.testVariable ',MyView3.testVariable);	   
+	   console.log('constructor: testVariable ',testVariable);	   
+	   console.log('constructor: this.testVariable ',this.testVariable);
+	   //this.testVariable = testVariable + 10;
+       }
+
+       plusOne() {  //testing
+	   console.log('onTap');
+	   console.log('plusOne: this ',this);	   	   
+	   console.log('plusOne: this.testVariable',this.testVariable);
+	   console.log('plusOne: testVariable',testVariable);	   
+	   //this.testVariable += 1;
+	   testVariable += 1;
+	   console.log('plusOne: this.testVariable',this.testVariable);
+	   console.log('plusOne: testVariable',testVariable);	   
+	   //testVariable=this.testVariable;
+       }
+
+       computeTestVariable() {  //testing
+	   console.log('computeTestVariable');
+	   console.log('this ',this);	   	   
+	   console.log('testVariable ',testVariable);
+	   console.log('this.testVariable ',this.testVariable);	   	   
+	   return testVariable +=2;
        }
        
        //test using method inside MyView3 class
@@ -315,6 +397,7 @@
    //testing scope from window
    console.log('testing from window');
    var recordZoom=1;
+   var testVariable=99;   
    MyView3.test3();  //test3 ->ok
    function test4() {
        console.log('test4');
