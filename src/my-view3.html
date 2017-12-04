@@ -63,6 +63,9 @@
      }
     </style>
 
+    <!-- testing polyline listener -->
+    path = <div id="path"></div>
+
     <!-- testing: works when _zoomChanged called, by calling mapLoaded() -->    
     <div><template is="dom-repeat" items="{{planCoordinates}}"
 		   plan-coordinates="{{planCoordinates}}">
@@ -136,7 +139,11 @@
 			{lat: 47.18997, lng: 8.82302},
 			{lat: 47.18994, lng: 8.82180},
 			{lat: 47.18896, lng: 8.81960}
-		    ]
+		    ],
+		    observer: 'observeCoordinates',
+		},
+		alignment: {
+		    type: Object,
 		},
 		testVariable: {
 		    type: Number,
@@ -168,14 +175,11 @@
 	    }
        }
 
-       //ready() {                                           //console.log's do not write to console ??
        constructor() {
-	   //super.ready();                                  //used together with ready()
 	   super();
-           //testing scope from inside ready() class method
-	   console.log('from ready');
-	   //console.log(this.map);  //undefined
+	   console.log('from constructor');
 
+           //testing scope from inside constructor() class method
 	   test2();  //test2 ->ok
 	   this.test1();  //test1 ->ok
 	   function test2() {
@@ -187,12 +191,25 @@
 	   console.log('constructor: this ',this);
 	   console.log('constructor: MyView3.testVariable ',MyView3.testVariable);	   
 	   console.log('constructor: testVariable ',testVariable);	   
-	   console.log('constructor: this.testVariable ',this.testVariable);
-	   console.log('ready');
+	   console.log('constructor: this.testVariable ',this.testVarible);
+	   console.log('finished constructor');
        }
 
+       ready() {                                           //console.log does not write to console ??
+	   super.ready();
+	   console.log('from ready');
+       }
+	   
        mapLoaded() {
-	   console.log('google-maps-api loading');	   
+	   console.log('google-maps-api loading');
+	   //testing getting element id
+	   var pathAlignment = Polymer.dom(this.root).querySelector("#path");
+	   console.log(pathAlignment);
+	   //document.getElementById('path').innerHTML = coordStr;  //Shady Dom. Polymer 2 uses Shadow Dom.
+	   //console.log(Polymer.dom(this.root).querySelector("#path")); //works
+	   //console.log(this.shadowRoot.querySelector("#path")); //works
+	   //console.log(this.$.path); //works
+
 	   var mapsAPI = this.shadowRoot.querySelector('google-maps-api');
 	   var mapCenter = {lat: 47.1899, lng: 8.8219};
 	   var map = new google.maps.Map(mapsAPI, {
@@ -229,13 +246,36 @@
 	   var alignment = new google.maps.Polyline({
 	       path: this.planCoordinates,
 	       geodesic: true,
-	       editable: true,		   
+	       editable: true,
+	       draggable: true,
 	       strokeColor: '#FF0000',
 	       strokeOpacity: 1.0,
 	       strokeWeight: 2,
-	       map: map,
+	       //map: map,
 	   });
 	   //alignment.setMap(map);   //useful to redisplay changed alignment?
+	   // listener for polyline, works
+	   google.maps.event.addListener(alignment, "dragend", function () {
+	       alignmentChanged(alignment) });
+	   google.maps.event.addListener(alignment.getPath(), "insert_at", function () {
+	       alignmentChanged(alignment) });
+	   google.maps.event.addListener(alignment.getPath(), "remove_at", function () {
+	       alignmentChanged(alignment) });
+	   google.maps.event.addListener(alignment.getPath(), "set_at", function () {
+	       alignmentChanged(alignment) });
+	   alignment.setMap(map); 
+	  function  alignmentChanged(alignment) {  //testing                      //polyline Listener
+	      console.log('alignmentChanged');
+	      //console.log('alignment ', alignment);
+	      var path = alignment.getPath();
+	      var len = path.getLength();
+	      var coordStr = "";
+	      for (var i = 0; i < len; i++) {
+		  coordStr += path.getAt(i).toUrlValue(6) + "<br>";
+	      }
+	      console.log('coordStr ', coordStr);
+	      pathAlignment.innerHTML = coordStr;  //output to element with id="path"
+	  }
 	   
 	   var imageBounds = {
 	       north: 47.19658,
@@ -243,7 +283,6 @@
 	       east: 8.8544,
 	       west: 8.7813
 	   };
-	   //	       //var altendorfTrails = new google.maps.GroundOverlay(
 	   this.altendorfTrails = new google.maps.GroundOverlay(
 	       //'../data/AltendorfTrails.png',
 	       '../src/AltendorfTrails.png',  //temporarily for firebase deply
@@ -384,7 +423,13 @@
 	   console.log('this.testVariable ',this.testVariable);	   	   
 	   return testVariable +=2;
        }
-       
+
+       observeCoordinates() {  //testing, never fires (probably because tems are inside an array)
+	                       //event listeners may be preferred method
+	   console.log('observeCoordinates');
+	   console.log('this.planCoordinates ', this.planCoordinates);
+       }
+
        //test using method inside MyView3 class
        test1() {
 	   console.log('test1');
